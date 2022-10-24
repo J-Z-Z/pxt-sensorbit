@@ -438,6 +438,38 @@ namespace sensors {
         _pianoDIO = pianoDIO
         _pianoCLK = pianoCLK
     }
+	
+    //% blockId=piano_v2_get block="piano_v2_get"  group="触摸钢琴模块 V2"
+    //% weight=70
+    //% subcategory="基础输入模块"
+    export function sensor_water(): string{
+        let DATA = 0
+        pins.digitalWritePin(_pianoDIO, 1)
+        control.waitMicros(93)
+
+        pins.digitalWritePin(_pianoDIO, 0)
+        control.waitMicros(10)
+
+        for (let i = 0; i < 8; i++) {
+            pins.digitalWritePin(_pianoCLK, 1)
+            pins.digitalWritePin(_pianoCLK, 0)
+            DATA |= pins.digitalReadPin(_pianoDIO) << i
+        }
+        control.waitMicros(2 * 1000)
+//         serial.writeString('' + DATA + '\n');
+        switch (DATA & 0xFF) {
+            case 0xFE: return "1";
+            case 0xFD: return "2";
+            case 0xFB: return "3";
+            case 0xF7: return "4";
+            case 0xEF: return "5";
+            case 0xDF: return "6";
+            case 0xBF: return "7";
+            case 0x7F: return "8";
+            default: return " ";
+        }
+        
+    }
 
     //% blockId=piano_v2_play block="piano_v2_read"   group="触摸钢琴模块 V2"
     //% weight=60
